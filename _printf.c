@@ -19,6 +19,11 @@ int _printf(const char *format, ...)
 		if (format[i] == '%')
 		{
 		i++;
+		if (format[i] == '\0')
+		{
+			_putchar('%'), count++;
+			break;
+		}
 		switch (format[i])
 		{
 		case 'c':
