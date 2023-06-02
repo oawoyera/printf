@@ -31,12 +31,6 @@ int _printf(const char *format, ...)
 			while (*string)
 				_putchar(*string++), count++;
 			break;
-		case 'd':
-			count = _print_num(va_arg(ap, int), count);
-			break;
-		case 'i':
-			count = _print_num(va_arg(ap, int), count);
-			break;
 		case '%':
 			_putchar('%'), count++;
 			break;
