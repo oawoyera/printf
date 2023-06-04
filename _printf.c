@@ -11,6 +11,8 @@ int _printf(const char *format, ...)
 	int i = 0, count = 0;
 	char *string;
 
+	if (format == foo)
+		return (-1);
 	va_start(ap, format);
 	while (format && format[i])
 	{
