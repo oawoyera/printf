@@ -116,6 +116,10 @@ int _print_bin(unsigned int num, int count)
 	unsigned int i = 0, temp;
 	char *tmp_bin;
 
+	if (num == 0)
+	{
+		_putchar('0'), count++;
+	}
 	temp = num;
 	while (num)
 	{
