@@ -1,5 +1,6 @@
 #include "main.h"
 int _print_num(int, int);
+int _print_bin(unsigned int num, int count);
 /**
  * _printf - prints formatted arguments passed
  * @format: pointer to format specifiers
@@ -43,6 +44,9 @@ int _printf(const char *format, ...)
 			break;
 		case 'i':
 			count = _print_num(va_arg(ap, int), count);
+			break;
+		case 'b':
+			count = _print_bin(va_arg(ap, unsigned int), count);
 			break;
 		default:
 			_putchar('%'), count++;
@@ -98,5 +102,36 @@ int _print_num(int num, int count)
 		_putchar('-'), count++;
 	while (*tmp_str)
 		_putchar(*tmp_str++), count++;
+	return (count);
+}
+/**
+ * _print_bin - converts an unsigned int to binary and prints to stdout
+ * @num: the unsigned int
+ * @count: counts number of characters printed
+ *
+ * Return: number of characters printed
+ */
+int _print_bin(unsigned int num, int count)
+{
+	unsigned int i = 0, temp;
+	char *tmp_bin;
+
+	temp = num;
+	while (num)
+	{
+		num /= 2;
+		++i;
+	}
+	tmp_bin = malloc((i + 1) * sizeof(char));
+	if (tmp_bin == NULL)
+		exit(-1);
+	tmp_bin[i] = '\0';
+	while (i)
+	{
+		tmp_bin[--i] = (temp % 2) + '0';
+		temp /= 2;
+	}
+	while (*tmp_bin)
+		_putchar(*tmp_bin++), count++;
 	return (count);
 }
