@@ -64,12 +64,19 @@ int _printf(const char *format, ...)
  */
 int _print_num(int num, int count)
 {
-	int j = 0, temp, neg = 0;
+	int j = 0, temp, neg = 0, min = 0;
 	char *tmp_str;
 
 	temp = num;
 	if (temp < 0)
+	{
+		if (temp == 0 - 2147483648)
+		{
+			temp = 0 - 2147483648 + 1;
+			min = 1;
+		}
 		num = temp =  0 - temp, neg = 1;
+	}
 	while (temp > 9)
 		temp /= 10, ++j;
 	++j;
@@ -77,6 +84,11 @@ int _print_num(int num, int count)
 	if (tmp_str == NULL)
 		exit(-1);
 	tmp_str[j] = '\0';
+	if (min == 1)
+	{
+	tmp_str[--j] = (num % 10) + 1 + '0';
+	num /= 10;
+	}
 	while (j)
 	{
 		tmp_str[--j] = (num % 10) + '0';
