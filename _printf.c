@@ -32,7 +32,7 @@ int _printf(const char *format, ...)
 		case 's':
 			string = va_arg(ap, char*);
 			if (string == NULL)
-				return (-1);
+				string = "(null)";
 			while (*string)
 				_putchar(*string++), count++;
 			break;
