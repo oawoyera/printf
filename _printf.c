@@ -1,6 +1,9 @@
 #include "main.h"
 int _print_num(int, int);
 int _print_bin(unsigned int num, int count);
+int _print_unsigned_num(unsigned int num, int count);
+int _print_octal(unsigned int num, int count);
+int _print_hex(unsigned int num, int count, int flag);
 /**
  * _printf - prints formatted arguments passed
  * @format: pointer to format specifiers
@@ -47,6 +50,18 @@ int _printf(const char *format, ...)
 			break;
 		case 'b':
 			count = _print_bin(va_arg(ap, unsigned int), count);
+			break;
+		case 'u':
+			count = _print_unsigned_num(va_arg(ap, unsigned int), count);
+			break;
+		case 'o':
+			count = _print_octal(va_arg(ap, unsigned int), count);
+			break;
+		case 'x':
+			count = _print_hex(va_arg(ap, unsigned int), count, 0);
+			break;
+		case 'X':
+			count = _print_hex(va_arg(ap, unsigned int), count, 1);
 			break;
 		default:
 			_putchar('%'), count++;
@@ -137,5 +152,117 @@ int _print_bin(unsigned int num, int count)
 	}
 	while (*tmp_bin)
 		_putchar(*tmp_bin++), count++;
+	return (count);
+}
+/**
+ * _print_unsigned_num - print a decimal number to stdout
+ * @num: the number to print
+ * @count: number of characters printed
+ *
+ * Return: void
+ */
+int _print_unsigned_num(unsigned int num, int count)
+{
+	unsigned int j = 0, temp;
+	char *tmp_str;
+
+	temp = num;
+	while (temp > 9)
+		temp /= 10, ++j;
+	++j;
+	tmp_str = malloc((j + 1) * sizeof(char));
+	if (tmp_str == NULL)
+		exit(-1);
+	tmp_str[j] = '\0';
+	while (j)
+	{
+		tmp_str[--j] = (num % 10) + '0';
+		num /= 10;
+	}
+	while (*tmp_str)
+		_putchar(*tmp_str++), count++;
+	return (count);
+}
+/**
+ * _print_octal - converts an unsigned int to octal and prints to stdout
+ * @num: the unsigned int
+ * @count: counts number of characters printed
+ *
+ * Return: number of characters printed
+ */
+int _print_octal(unsigned int num, int count)
+{
+	unsigned int i = 0, temp;
+	char *tmp_oct;
+
+	if (num == 0)
+	{
+		_putchar('0'), count++;
+	}
+	temp = num;
+	while (num)
+	{
+		num /= 8;
+		++i;
+	}
+	tmp_oct = malloc((i + 1) * sizeof(char));
+	if (tmp_oct == NULL)
+		exit(-1);
+	tmp_oct[i] = '\0';
+	while (i)
+	{
+		tmp_oct[--i] = (temp % 8) + '0';
+		temp /= 8;
+	}
+	while (*tmp_oct)
+		_putchar(*tmp_oct++), count++;
+	return (count);
+}
+/**
+ * _print_hex - converts an unsigned int to hexadecimal and prints to stdout
+ * @num: the unsigned int
+ * @count: counts number of characters printed
+ * @flag: 0 if lower and 1 if upper
+ *
+ * Return: number of characters printed
+ */
+int _print_hex(unsigned int num, int count, int flag)
+{
+	unsigned int i = 0, temp;
+	char *tmp_hex;
+	char *hex_num;
+
+	hex_num = "abcdefABCDEF";
+	if (num == 0)
+	{
+		_putchar('0'), count++;
+	}
+	temp = num;
+	while (num)
+	{
+		num /= 16;
+		++i;
+	}
+	tmp_hex = malloc((i + 1) * sizeof(char));
+	if (tmp_hex == NULL)
+		exit(-1);
+	tmp_hex[i] = '\0';
+	while (i)
+	{
+		if ((temp % 16) > 9)
+		{
+			if (flag == 0)
+				tmp_hex[--i] = hex_num[(temp % 16) - 10];
+			else
+				tmp_hex[--i] = hex_num[(temp % 16) - 10 + 6];
+		}
+		else
+		{
+			tmp_hex[--i] = (temp % 16) + '0';
+		}
+		temp /= 16;
+	}
+	while (*tmp_hex)
+		_putchar(*tmp_hex++), count++;
 	return (count);
 }
