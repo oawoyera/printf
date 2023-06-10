@@ -3,7 +3,7 @@ int _print_num(int, int);
 int _print_bin(unsigned int num, int count);
 int _print_unsigned_num(unsigned int num, int count);
 int _print_octal(unsigned int num, int count);
-int _print_hex(unsigned int num, int count, int flag);
+int _print_hex(unsigned long int num, int count, int flag);
 /**
  * _printf - prints formatted arguments passed
  * @format: pointer to format specifiers
@@ -12,9 +12,10 @@ int _print_hex(unsigned int num, int count, int flag);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, count = 0;
-	char *string;
+	int i = 0, j, count = 0; /*flag_index = 0;*/
+	char *string; /*flag;*/
 
+	/*flag = "+ #lh0123456789.-";*/
 	if (format == NULL)
 		return (-1);
 	va_start(ap, format);
@@ -27,6 +28,14 @@ int _printf(const char *format, ...)
 		i++;
 		if (format[i] == '\0')
 			return (-1);
+		/**while (format[i]) == '+' || format[i] == ' ' || format[i] == '#')
+		*{
+		*	if (flag_index = 0)
+		*		j = i;
+		*	flag_index++;
+		*	i++;
+		*}
+		*/
 		switch (format[i])
 		{
 		case 'c':
@@ -62,6 +71,26 @@ int _printf(const char *format, ...)
 			break;
 		case 'X':
 			count = _print_hex(va_arg(ap, unsigned int), count, 1);
+			break;
+		case 'S':
+			string = va_arg(ap, char*);
+			if (string == NULL)
+				string = "(null)";
+			while (*string)
+			{
+				if (((*string > 0) && (*string < 32)) || (*string >= 127))
+					if (*string < 16)
+						_printf("\\x0%X", *string++);
+					else
+						_printf("\\x%X", *string++);
+				else
+					_putchar(*string++), count++;
+			}
+			break;
+		case 'p':
+			_putchar('0'), count++;
+			_putchar('x'), count++;
+			count = _print_hex((unsigned long int)va_arg(ap, void*), count, 0);
 			break;
 		default:
 			_putchar('%'), count++;
@@ -226,9 +255,9 @@ int _print_octal(unsigned int num, int count)
  *
  * Return: number of characters printed
  */
-int _print_hex(unsigned int num, int count, int flag)
+int _print_hex(unsigned long int num, int count, int flag)
 {
-	unsigned int i = 0, temp;
+	unsigned long int i = 0, temp;
 	char *tmp_hex;
 	char *hex_num;
 

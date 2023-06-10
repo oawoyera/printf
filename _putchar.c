@@ -7,5 +7,17 @@
  */
 void _putchar(char c)
 {
-	write(1, &c, 1);
+	static char buf[1024];
+	static int buf_count;
+
+	if (buf_count == 1024)
+	{
+		write(1, buf, buf_count);
+		buf_count = 0;
+	}
+	else
+	{
+		buf[buf_count] = c;
+		buf_count++;
+	}
 }
