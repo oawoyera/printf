@@ -15,9 +15,6 @@ void _putchar(char c)
 		write(1, buf, buf_count);
 		buf_count = 0;
 	}
-	else
-	{
-		buf[buf_count] = c;
-		buf_count++;
-	}
+	buf[buf_count] = c;
+	buf_count++;
 }
