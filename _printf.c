@@ -12,7 +12,7 @@ int _print_hex(unsigned long int num, int count, int flag);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, j, count = 0; /*flag_index = 0;*/
+	int i = 0, count = 0; /*flag_index = 0, j;*/
 	char *string; /*flag;*/
 
 	/*flag = "+ #lh0123456789.-";*/
@@ -28,7 +28,8 @@ int _printf(const char *format, ...)
 		i++;
 		if (format[i] == '\0')
 			return (-1);
-		/**while (format[i]) == '+' || format[i] == ' ' || format[i] == '#')
+		/**
+		* while (format[i]) == '+' || format[i] == ' ' || format[i] == '#')
 		*{
 		*	if (flag_index = 0)
 		*		j = i;
