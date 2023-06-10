@@ -12,7 +12,7 @@ void _putchar(char c)
 
 	if (c == -1 || buf_count >= 1024)
 	{
-		write(1, &buf, buf_count);
+		write(1, buf, buf_count);
 		buf_count = 0;
 	}
 	if (c != -1)
