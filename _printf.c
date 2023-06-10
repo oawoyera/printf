@@ -82,9 +82,9 @@ int _printf(const char *format, ...)
 				if (((*string > 0) && (*string < 32)) || (*string >= 127))
 				{
 					if (*string < 16)
-						_printf("\\x0%X", *string++);
+						count += _printf("\\x0%X", *string++);
 					else
-						_printf("\\x%X", *string++);
+						count += _printf("\\x%X", *string++);
 				}
 				else
 				{
