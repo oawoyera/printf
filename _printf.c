@@ -4,6 +4,8 @@ int _print_bin(unsigned int num, int count);
 int _print_unsigned_num(unsigned int num, int count);
 int _print_octal(unsigned int num, int count);
 int _print_hex(unsigned long int num, int count, int flag);
+int is_flag(char c);
+int is_format(char c);
 /**
  * _printf - prints formatted arguments passed
  * @format: pointer to format specifiers
@@ -12,10 +14,11 @@ int _print_hex(unsigned long int num, int count, int flag);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, count = 0; /*flag_index = 0, j;*/
-	char *string; /*flag;*/
+	int i = 0, j, num, count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
+	unsigned int num2;
+	char *string; /*flags;*/
 
-	/*flag = "+ #lh0123456789.-";*/
+	/*flags = "+ #lh0123456789.-";*/
 	if (format == NULL)
 		return (-1);
 	va_start(ap, format);
@@ -28,15 +31,24 @@ int _printf(const char *format, ...)
 		i++;
 		if (format[i] == '\0')
 			return (-1);
-		/**
-		* while (format[i]) == '+' || format[i] == ' ' || format[i] == '#')
-		*{
-		*	if (flag_index = 0)
-		*		j = i;
-		*	flag_index++;
-		*	i++;
-		*}
-		*/
+		while (is_flag(format[i]))
+		{
+			if (flag_index == 0)
+				j = i;
+			flag_index++;
+			if (format[i] == '+')
+				flag_plus = 1;
+			if (format[i] == ' ')
+				flag_space = 1;
+			if (format[i] == '#')
+				flag_hash = 1;
+			i++;
+		}
+		if (is_flag(format[i - 1]) && !(is_format(format[i])))
+		{
+			i = j;
+			flag_plus = flag_space = flag_hash = 0;
+		}
 		switch (format[i])
 		{
 		case 'c':
@@ -53,10 +65,20 @@ int _printf(const char *format, ...)
 			_putchar('%'), count++;
 			break;
 		case 'd':
-			count = _print_num(va_arg(ap, int), count);
+			num = va_arg(ap, int);
+			if (flag_plus == 1 && num > 0)
+				_putchar('+'), count++;
+			if (flag_space == 1 && num > 0 && flag_plus == 0)
+				_putchar(' '), count++;
+			count = _print_num(num, count);
 			break;
 		case 'i':
-			count = _print_num(va_arg(ap, int), count);
+			num = va_arg(ap, int);
+			if (flag_plus == 1 && num > 0)
+				_putchar('+'), count++;
+			if (flag_space == 1 && num > 0 && flag_plus == 0)
+				_putchar(' '), count++;
+			count = _print_num(num, count);
 			break;
 		case 'b':
 			count = _print_bin(va_arg(ap, unsigned int), count);
@@ -65,13 +87,28 @@ int _printf(const char *format, ...)
 			count = _print_unsigned_num(va_arg(ap, unsigned int), count);
 			break;
 		case 'o':
-			count = _print_octal(va_arg(ap, unsigned int), count);
+			num2 = va_arg(ap, unsigned int);
+			if (flag_hash == 1 && num2 != 0)
+				_putchar('0'), count++;
+			count = _print_octal(num2, count);
 			break;
 		case 'x':
-			count = _print_hex(va_arg(ap, unsigned int), count, 0);
+			num2 = va_arg(ap, unsigned int);
+			if (flag_hash == 1 && num2 != 0)
+			{
+				_putchar('0'), count++;
+				_putchar('x'), count++;
+			}
+			count = _print_hex(num2, count, 0);
 			break;
 		case 'X':
-			count = _print_hex(va_arg(ap, unsigned int), count, 1);
+			num2 = va_arg(ap, unsigned int);
+			if (flag_hash == 1 && num2 != 0)
+			{
+				_putchar('0'), count++;
+				_putchar('X'), count++;
+			}
+			count = _print_hex(num2, count, 1);
 			break;
 		case 'S':
 			string = va_arg(ap, char*);
@@ -308,4 +345,40 @@ int _print_hex(unsigned long int num, int count, int flag)
 	while (*tmp_hex)
 		_putchar(*tmp_hex++), count++;
 	return (count);
+}
+/**
+ * is_flag - function to check if a char is a flag character
+ * @c: the character
+ *
+ * Return: 1 if flag char, 0 otherwise
+ */
+int is_flag(char c)
+{
+	char *flags;
+
+	flags = "+ #";
+	while (*flags)
+	{
+		if (c == *flags++)
+			return (1);
+	}
+	return (0);
+}
+/**
+ * is_format - function to check if a char is a format specifier
+ * @c: the character
+ *
+ * Return: 1 if format, 0 otherwise
+ */
+int is_format(char c)
+{
+	char *formats;
+
+	formats = "csdiuoxXp";
+	while (*formats)
+	{
+		if (c == *formats++)
+			return (1);
+	}
+	return (0);
 }
