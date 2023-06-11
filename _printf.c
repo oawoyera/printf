@@ -76,9 +76,9 @@ int _printf(const char *format, ...)
 			break;
 		case 'i':
 			num = va_arg(ap, int);
-			if (flag_plus == 1 && num > 0)
+			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
-			if (flag_space == 1 && num > 0 && flag_plus == 0)
+			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
 			count = _print_num(num, count);
 			break;
