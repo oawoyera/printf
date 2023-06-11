@@ -16,6 +16,7 @@ int _printf(const char *format, ...)
 	va_list ap;
 	int i = 0, j, num, count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
 	unsigned int num2;
+	int percent_space = 0;
 	char *string; /*flags;*/
 
 	/*flags = "+ #lh0123456789.-";*/
@@ -49,6 +50,7 @@ int _printf(const char *format, ...)
 			i = j;
 			flag_plus = flag_space = flag_hash = 0;
 		}
+		flag_index = 0;
 		switch (format[i])
 		{
 		case 'c':
@@ -66,9 +68,9 @@ int _printf(const char *format, ...)
 			break;
 		case 'd':
 			num = va_arg(ap, int);
-			if (flag_plus == 1 && num > 0)
+			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
-			if (flag_space == 1 && num > 0 && flag_plus == 0)
+			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
 			count = _print_num(num, count);
 			break;
@@ -141,6 +143,14 @@ int _printf(const char *format, ...)
 			_putchar('0'), count++;
 			_putchar('x'), count++;
 			count = _print_hex((unsigned long int)string, count, 0);
+			break;
+		case ' ':
+			percent_space++;
+			if ((percent_space % 2) == 0)
+			{
+				_putchar('%'), count++;
+				_putchar(format[i]), count++;
+			}
 			break;
 		default:
 			_putchar('%'), count++;
