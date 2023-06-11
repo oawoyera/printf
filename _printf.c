@@ -93,9 +93,17 @@ int _printf(const char *format, ...)
 			}
 			break;
 		case 'p':
+			string = va_arg(ap, void*);
+			if (string == NULL)
+			{
+				string = "(nil)";
+				while (*string)
+					_putchar(*string++), count++;
+				break;
+			}
 			_putchar('0'), count++;
 			_putchar('x'), count++;
-			count = _print_hex((unsigned long int)va_arg(ap, void*), count, 0);
+			count = _print_hex((unsigned long int)string, count, 0);
 			break;
 		default:
 			_putchar('%'), count++;
