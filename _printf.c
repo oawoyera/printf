@@ -146,7 +146,7 @@ int _printf(const char *format, ...)
 			break;
 		case ' ':
 			percent_space++;
-			if ((percent_space % 2) == 1)
+			if ((percent_space % 2) == 0)
 			{
 				_putchar('%'), count++;
 				_putchar(format[i]), count++;
@@ -159,7 +159,7 @@ int _printf(const char *format, ...)
 		}
 		i++;
 	}
-	_putchar(-1);
+	/*_putchar(-1);*/
 	va_end(ap);
 	return (count);
 }
