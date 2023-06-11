@@ -161,6 +161,8 @@ int _printf(const char *format, ...)
 	}
 	_putchar(-1);
 	va_end(ap);
+	if (percent_space == 1)
+		return (-1);
 	return (count);
 }
 
