@@ -17,7 +17,7 @@ int _printf(const char *format, ...)
 	int i = 0, j, num, count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
 	unsigned int num2;
 	int percent_space = 0;
-	char *string; /*flags;*/
+	char *string; /*flags; */
 
 	/*flags = "+ #lh0123456789.-";*/
 	if (format == NULL)
