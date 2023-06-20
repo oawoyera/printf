@@ -1,5 +1,5 @@
 #include "main.h"
-int _print_num(int, int);
+int _print_num(long int, int);
 int _print_bin(unsigned int num, int count);
 int _print_unsigned_num(unsigned long int num, int count);
 int _print_octal(unsigned long int num, int count);
@@ -14,7 +14,7 @@ int is_format(char c);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, j;
+	int i = 0, j, no_lh = 0;
 	int count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
 	long int num;
 	unsigned long int num2;
@@ -47,13 +47,20 @@ int _printf(const char *format, ...)
 				flag_hash = 1;
 			i++;
 		}
-		if ((format[i] == 'l' || format[i] == 'h') && (is_format(format[i + 1])))
+		if (format[i] == 'l' || format[i] == 'h')
 		{
-			if (format[i] == 'l')
-				flag_ell = 1;
-			if (format[i] == 'h')
-				flag_h = 1;
-			i++;
+			if (is_format(format[i + 1]))
+			{
+				if (format[i] == 'l')
+					flag_ell = 1;
+				if (format[i] == 'h')
+					flag_h = 1;
+				i++;
+			}
+			else
+			{
+				no_lh = 1;
+			}
 		}
 		if ((flag_index != 0) && !(is_format(format[i])))
 		{
@@ -191,7 +198,8 @@ int _printf(const char *format, ...)
 			break;
 		default:
 			_putchar('%'), count++;
-			_putchar(format[i]), count++;
+			if (no_lh != 1)
+				_putchar(format[i]), count++;
 		}
 		}
 		flag_ell = flag_h = 0;
@@ -211,17 +219,18 @@ int _printf(const char *format, ...)
  *
  * Return: void
  */
-int _print_num(int num, int count)
+int _print_num(long int num, int count)
 {
-	int j = 0, temp, neg = 0, min = 0;
+	int j = 0, neg = 0, min = 0;
+	long int temp;
 	char *tmp_str;
 
 	temp = num;
 	if (temp < 0)
 	{
-		if (temp == 0 - 2147483648)
+		if (temp == LONG_MIN)
 		{
-			temp = 0 - 2147483648 + 1;
+			temp = LONG_MIN + 1;
 			min = 1;
 		}
 		num = temp =  0 - temp, neg = 1;
