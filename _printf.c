@@ -1,8 +1,8 @@
 #include "main.h"
 int _print_num(int, int);
 int _print_bin(unsigned int num, int count);
-int _print_unsigned_num(unsigned int num, int count);
-int _print_octal(unsigned int num, int count);
+int _print_unsigned_num(unsigned long int num, int count);
+int _print_octal(unsigned long int num, int count);
 int _print_hex(unsigned long int num, int count, int flag);
 int is_flag(char c);
 int is_format(char c);
@@ -14,9 +14,11 @@ int is_format(char c);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, j, num, count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
-	unsigned int num2;
-	int percent_space = 0;
+	int i = 0, j;
+	int count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
+	long int num;
+	unsigned long int num2;
+	int percent_space = 0, flag_ell = 0, flag_h = 0;
 	char *string; /*flags;*/
 
 	/*flags = "+ #lh0123456789.-";*/
@@ -45,7 +47,15 @@ int _printf(const char *format, ...)
 				flag_hash = 1;
 			i++;
 		}
-		if (is_flag(format[i - 1]) && !(is_format(format[i])))
+		if ((format[i] == 'l' || format[i] == 'h') && (is_format(format[i + 1])))
+		{
+			if (format[i] == 'l')
+				flag_ell = 1;
+			if (format[i] == 'h')
+				flag_h = 1;
+			i++;
+		}
+		if ((flag_index != 0) && !(is_format(format[i])))
 		{
 			i = j;
 			flag_plus = flag_space = flag_hash = 0;
@@ -67,7 +77,10 @@ int _printf(const char *format, ...)
 			_putchar('%'), count++;
 			break;
 		case 'd':
-			num = va_arg(ap, int);
+			if (flag_ell == 1)
+				num = va_arg(ap, long int);
+			else
+				num = va_arg(ap, int);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
@@ -75,7 +88,10 @@ int _printf(const char *format, ...)
 			count = _print_num(num, count);
 			break;
 		case 'i':
-			num = va_arg(ap, int);
+			if (flag_ell == 1)
+				num = va_arg(ap, long int);
+			else
+				num = va_arg(ap, int);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
@@ -86,16 +102,32 @@ int _printf(const char *format, ...)
 			count = _print_bin(va_arg(ap, unsigned int), count);
 			break;
 		case 'u':
-			count = _print_unsigned_num(va_arg(ap, unsigned int), count);
+			if (flag_ell == 1)
+				num2 = va_arg(ap, unsigned long int);
+			else if (flag_h == 1)
+				num2 = va_arg(ap, int);
+			else
+				num2 = va_arg(ap, unsigned int);
+			count = _print_unsigned_num(num2, count);
 			break;
 		case 'o':
-			num2 = va_arg(ap, unsigned int);
+			if (flag_ell == 1)
+				num2 = va_arg(ap, unsigned long int);
+			else if (flag_h == 1)
+				num2 = va_arg(ap, int);
+			else
+				num2 = va_arg(ap, unsigned int);
 			if (flag_hash == 1 && num2 != 0)
 				_putchar('0'), count++;
 			count = _print_octal(num2, count);
 			break;
 		case 'x':
-			num2 = va_arg(ap, unsigned int);
+			if (flag_ell == 1)
+				num2 = va_arg(ap, unsigned long int);
+			else if (flag_h == 1)
+				num2 = va_arg(ap, int);
+			else
+				num2 = va_arg(ap, unsigned int);
 			if (flag_hash == 1 && num2 != 0)
 			{
 				_putchar('0'), count++;
@@ -104,7 +136,12 @@ int _printf(const char *format, ...)
 			count = _print_hex(num2, count, 0);
 			break;
 		case 'X':
-			num2 = va_arg(ap, unsigned int);
+			if (flag_ell == 1)
+				num2 = va_arg(ap, unsigned long int);
+			else if (flag_h == 1)
+				num2 = va_arg(ap, int);
+			else
+				num2 = va_arg(ap, unsigned int);
 			if (flag_hash == 1 && num2 != 0)
 			{
 				_putchar('0'), count++;
@@ -157,6 +194,7 @@ int _printf(const char *format, ...)
 			_putchar(format[i]), count++;
 		}
 		}
+		flag_ell = flag_h = 0;
 		i++;
 	}
 	_putchar(-1);
@@ -253,9 +291,10 @@ int _print_bin(unsigned int num, int count)
  *
  * Return: void
  */
-int _print_unsigned_num(unsigned int num, int count)
+int _print_unsigned_num(unsigned long int num, int count)
 {
-	unsigned int j = 0, temp;
+	int j = 0;
+	unsigned long int temp;
 	char *tmp_str;
 
 	temp = num;
@@ -282,9 +321,10 @@ int _print_unsigned_num(unsigned int num, int count)
  *
  * Return: number of characters printed
  */
-int _print_octal(unsigned int num, int count)
+int _print_octal(unsigned long int num, int count)
 {
-	unsigned int i = 0, temp;
+	int i = 0;
+	unsigned long int temp;
 	char *tmp_oct;
 
 	if (num == 0)
@@ -320,7 +360,8 @@ int _print_octal(unsigned int num, int count)
  */
 int _print_hex(unsigned long int num, int count, int flag)
 {
-	unsigned long int i = 0, temp;
+	int i = 0;
+	unsigned long int temp;
 	char *tmp_hex;
 	char *hex_num;
 
