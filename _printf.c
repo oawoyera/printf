@@ -7,6 +7,7 @@ int _print_hex(unsigned long int num, int flag);
 int is_flag(char c);
 int is_format(char c);
 int padding(int pad_width);
+int zero_padding(int pad_width);
 int len(char *str);
 int _print_num_count(long int);
 int _print_unsigned_num_count(unsigned long int num);
@@ -20,12 +21,14 @@ int _print_hex_count(unsigned long int num, int flag);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, j, k, l, no_lh = 0, t = 0, min_width_size, foo, flag_star = 0;
+	int i = 0, j, k, l, no_lh = 0, t = 0, min_width_size, foo, bar, flag_star = 0;
 	int count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
 	long int num;
 	unsigned long int num2;
 	int percent_space = 0, flag_ell = 0, flag_h = 0, flag_width = 0, flag_neg = 0;
-	char *string, *width; /*flags;*/
+	int m, n, m0, m1, flag_precision = 0, min_precision = 0, flag_star_p = 0;
+	int zpad = 0, z = 0, p = 0, pre = 0;
+	char *string, *width, *precision; /*flags;*/
 
 	/*flags = "+ #lh0123456789.-";*/
 	if (format == NULL)
@@ -84,6 +87,43 @@ int _printf(const char *format, ...)
 				min_width_size = str_to_num(width);
 			}
 		}
+		m = i;
+		if (format[i] == '.')
+		{
+			flag_precision = 1;
+			i++;
+			m0 = i;
+			while ((format[i] >= '0' && format[i] <= '9') || (format[i] == '*'))
+			{
+				if (format[i] == '*')
+					flag_star_p = 1;
+				i++;
+			}
+			m1 = i;
+			i = m0;
+			if (m1 > m0)
+			{
+				if (flag_star_p == 1)
+				{
+					min_precision = va_arg(ap, int);
+					i++;
+				}
+				else
+				{
+					precision = malloc((m1 - m0 + 1) * sizeof(char));
+					if (precision == NULL)
+						return (-1);
+					while (format[i] >= '0' && format[i] <= '9')
+					{
+						precision[p++] = format[i];
+						i++;
+					}
+					precision[p] = '\0';
+					min_precision = str_to_num(precision);
+				}
+			}
+		}
+		n = i;
 		if (format[i] == 'l' || format[i] == 'h')
 		{
 			if (is_format(format[i + 1]))
@@ -106,6 +146,13 @@ int _printf(const char *format, ...)
 				free(width);
 			flag_width = flag_star = 0;
 		}
+		if (flag_precision == 1 && !(is_format(format[i])))
+		{
+			i -= n - m;
+			if (flag_star_p != 1)
+				free(precision);
+			flag_precision = flag_star_p = 0;
+		}
 		if ((flag_index != 0) && !(is_format(format[i])))
 		{
 			i = j;
@@ -125,12 +172,25 @@ int _printf(const char *format, ...)
 			string = va_arg(ap, char*);
 			if (string == NULL)
 				string = "(null)";
-			if ((flag_width == 1) && (len(string) < min_width_size) && (flag_neg == 0))
-				count += padding(min_width_size - len(string));
+			if (flag_precision == 1)
+				foo = min_precision;
+			else
+				foo = len(string);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			while (*string)
+			{
 				_putchar(*string++), count++;
-			if ((flag_width == 1) && (len(string) < min_width_size) && (flag_neg == 1))
-				count += padding(min_width_size - len(string));
+				if (flag_precision == 1)
+				{
+					pre++;
+					if (pre >= min_precision)
+						break;
+				}
+			}
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
+			pre = 0;
 			break;
 		case '%':
 			if ((flag_width == 1) && (min_width_size > 1) && (flag_neg == 0))
@@ -144,14 +204,22 @@ int _printf(const char *format, ...)
 				num = va_arg(ap, long int);
 			else
 				num = va_arg(ap, int);
+			if (flag_precision == 1)
+			{
+				bar = _print_num_count(num);
+				if (bar < min_precision)
+					z = min_precision - bar;
+			}
 			if (flag_width == 1)
-				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
+				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0)) + z;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
+			if ((flag_precision == 1) && (bar < min_precision))
+				count += zero_padding(z);
 			count += _print_num(num);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -161,6 +229,12 @@ int _printf(const char *format, ...)
 				num = va_arg(ap, long int);
 			else
 				num = va_arg(ap, int);
+			if (flag_precision == 1)
+			{
+				bar = _print_num_count(num);
+				if (bar < min_precision)
+					zpad = min_precision - bar;
+			}
 			if (flag_width == 1)
 				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
@@ -169,6 +243,8 @@ int _printf(const char *format, ...)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
+			if ((flag_precision == 1) && (bar < min_precision))
+				count += zero_padding(zpad);
 			count += _print_num(num);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -183,10 +259,18 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			if (flag_precision == 1)
+			{
+				bar = _print_unsigned_num_count(num2);
+				if (bar < min_precision)
+					zpad = min_precision - bar;
+			}
 			if (flag_width == 1)
-				foo = _print_unsigned_num_count(num2);
+				foo = _print_unsigned_num_count(num2) + zpad;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
+			if ((flag_precision == 1) && (bar < min_precision))
+				count += zero_padding(zpad);
 			count += _print_unsigned_num(num2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -198,12 +282,20 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			if (flag_precision == 1)
+			{
+				bar = _print_octal_count(num2);
+				if (bar < min_precision)
+					zpad = min_precision - bar;
+			}
 			if (flag_width == 1)
-				foo = _print_octal_count(num2) + (flag_hash * (num2 != 0));
+				foo = _print_octal_count(num2) + (flag_hash * (num2 != 0)) + zpad;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
 				_putchar('0'), count++;
+			if ((flag_precision == 1) && (bar < min_precision))
+				count += zero_padding(zpad);
 			count += _print_octal(num2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -215,8 +307,14 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			if (flag_precision == 1)
+			{
+				bar = _print_hex_count(num2, 0);
+				if (bar < min_precision)
+					zpad = min_precision - bar;
+			}
 			if (flag_width == 1)
-				foo = _print_hex_count(num2, 0) + ((flag_hash * (num2 != 0)) * 2);
+				foo = _print_hex_count(num2, 0) + ((flag_hash * (num2 != 0)) * 2) + zpad;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
@@ -224,6 +322,8 @@ int _printf(const char *format, ...)
 				_putchar('0'), count++;
 				_putchar('x'), count++;
 			}
+			if ((flag_precision == 1) && (bar < min_precision))
+				count += zero_padding(zpad);
 			count += _print_hex(num2, 0);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -235,8 +335,14 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			if (flag_precision == 1)
+			{
+				bar = _print_hex_count(num2, 1);
+				if (bar < min_precision)
+					zpad = min_precision - bar;
+			}
 			if (flag_width == 1)
-				foo = _print_hex_count(num2, 1) + ((flag_hash * (num2 != 0)) * 2);
+				foo = _print_hex_count(num2, 1) + ((flag_hash * (num2 != 0)) * 2) + zpad;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
@@ -244,6 +350,8 @@ int _printf(const char *format, ...)
 				_putchar('0'), count++;
 				_putchar('X'), count++;
 			}
+			if ((flag_precision == 1) && (bar < min_precision))
+				count += zero_padding(zpad);
 			count += _print_hex(num2, 1);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -304,7 +412,8 @@ int _printf(const char *format, ...)
 				_putchar(format[i]), count++;
 		}
 		}
-		flag_ell = flag_h = flag_width = flag_neg = 0;
+		flag_ell = flag_h = flag_width = flag_neg = 0, flag_precision = 0;
+		min_precision = 0, zpad = 0, z = 0;
 		i++;
 	}
 	_putchar(-1);
@@ -554,6 +663,20 @@ int padding(int pad_width)
 
 	for (i = 0; i < pad_width; i++)
 		_putchar(' ');
+	return (pad_width);
+}
+/**
+ * zero_padding - function to print padding of zeros
+ * @pad_width: the size of padding
+ *
+ * Return: number of chars printed
+ */
+int zero_padding(int pad_width)
+{
+	int i;
+
+	for (i = 0; i < pad_width; i++)
+		_putchar('0');
 	return (pad_width);
 }
 /**
