@@ -7,5 +7,6 @@
 #include <stdarg.h>
 int _printf(const char *format, ...);
 void _putchar(char c);
+unsigned long int str_to_num(char *s);
 
 #endif /*_MAIN_H_*/

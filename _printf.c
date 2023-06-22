@@ -1,11 +1,17 @@
 #include "main.h"
-int _print_num(long int, int);
+int _print_num(long int);
 int _print_bin(unsigned int num, int count);
-int _print_unsigned_num(unsigned long int num, int count);
-int _print_octal(unsigned long int num, int count);
-int _print_hex(unsigned long int num, int count, int flag);
+int _print_unsigned_num(unsigned long int num);
+int _print_octal(unsigned long int num);
+int _print_hex(unsigned long int num, int flag);
 int is_flag(char c);
 int is_format(char c);
+int padding(int pad_width);
+int len(char *str);
+int _print_num_count(long int);
+int _print_unsigned_num_count(unsigned long int num);
+int _print_octal_count(unsigned long int num);
+int _print_hex_count(unsigned long int num, int flag);
 /**
  * _printf - prints formatted arguments passed
  * @format: pointer to format specifiers
@@ -14,12 +20,12 @@ int is_format(char c);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, j, no_lh = 0;
+	int i = 0, j, k, l, no_lh = 0, t = 0, min_width_size, foo;
 	int count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
 	long int num;
 	unsigned long int num2;
-	int percent_space = 0, flag_ell = 0, flag_h = 0;
-	char *string; /*flags;*/
+	int percent_space = 0, flag_ell = 0, flag_h = 0, flag_width = 0, flag_neg = 0;
+	char *string, *width; /*flags;*/
 
 	/*flags = "+ #lh0123456789.-";*/
 	if (format == NULL)
@@ -47,6 +53,25 @@ int _printf(const char *format, ...)
 				flag_hash = 1;
 			i++;
 		}
+		k = i;
+		while (format[i] >= '1' && format[i] <= '9')
+			i++;
+		l = i;
+		i = k;
+		if (l > k)
+		{
+		flag_width = 1;
+		width = malloc((l - k + 1) * sizeof(char));
+		if (width == NULL)
+			return (-1);
+		while (format[i] >= '1' && format[i] <= '9')
+		{
+			width[t++] = format[i];
+			i++;
+		}
+		width[t] = '\0';
+		min_width_size = str_to_num(width);
+		}
 		if (format[i] == 'l' || format[i] == 'h')
 		{
 			if (is_format(format[i + 1]))
@@ -62,6 +87,12 @@ int _printf(const char *format, ...)
 				no_lh = 1;
 			}
 		}
+		if (flag_width == 1 && !(is_format(format[i])))
+		{
+			i -= l - k;
+			free(width);
+			flag_width = 0;
+		}
 		if ((flag_index != 0) && !(is_format(format[i])))
 		{
 			i = j;
@@ -71,39 +102,61 @@ int _printf(const char *format, ...)
 		switch (format[i])
 		{
 		case 'c':
+			if ((flag_width == 1) && (min_width_size > 1) && (flag_neg == 0))
+				count += padding(min_width_size - 1);
 			_putchar(va_arg(ap, int)), count++;
+			if ((flag_width == 1) && (min_width_size > 1) && (flag_neg == 1))
+				count += padding(min_width_size - 1);
 			break;
 		case 's':
 			string = va_arg(ap, char*);
 			if (string == NULL)
 				string = "(null)";
+			if ((flag_width == 1) && (len(string) < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - len(string));
 			while (*string)
 				_putchar(*string++), count++;
+			if ((flag_width == 1) && (len(string) < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - len(string));
 			break;
 		case '%':
+			if ((flag_width == 1) && (min_width_size > 1) && (flag_neg == 0))
+				count += padding(min_width_size - 1);
 			_putchar('%'), count++;
+			if ((flag_width == 1) && (min_width_size > 1) && (flag_neg == 1))
+				count += padding(min_width_size - 1);
 			break;
 		case 'd':
 			if (flag_ell == 1)
 				num = va_arg(ap, long int);
 			else
 				num = va_arg(ap, int);
+			foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
-			count = _print_num(num, count);
+			count += _print_num(num);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case 'i':
 			if (flag_ell == 1)
 				num = va_arg(ap, long int);
 			else
 				num = va_arg(ap, int);
+			foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
-			count = _print_num(num, count);
+			count += _print_num(num);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case 'b':
 			count = _print_bin(va_arg(ap, unsigned int), count);
@@ -115,7 +168,12 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
-			count = _print_unsigned_num(num2, count);
+			foo = _print_unsigned_num_count(num2);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
+			count += _print_unsigned_num(num2);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case 'o':
 			if (flag_ell == 1)
@@ -124,9 +182,14 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			foo = _print_octal_count(num2) + (flag_hash * (num2 != 0));
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
 				_putchar('0'), count++;
-			count = _print_octal(num2, count);
+			count += _print_octal(num2);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case 'x':
 			if (flag_ell == 1)
@@ -135,12 +198,17 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			foo = _print_hex_count(num2, 0) + ((flag_hash * (num2 != 0)) * 2);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
 			{
 				_putchar('0'), count++;
 				_putchar('x'), count++;
 			}
-			count = _print_hex(num2, count, 0);
+			count += _print_hex(num2, 0);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case 'X':
 			if (flag_ell == 1)
@@ -149,12 +217,17 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
+			foo = _print_hex_count(num2, 1) + ((flag_hash * (num2 != 0)) * 2);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
 			{
 				_putchar('0'), count++;
 				_putchar('X'), count++;
 			}
-			count = _print_hex(num2, count, 1);
+			count += _print_hex(num2, 1);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case 'S':
 			string = va_arg(ap, char*);
@@ -180,13 +253,22 @@ int _printf(const char *format, ...)
 			if (string == NULL)
 			{
 				string = "(nil)";
+				if ((flag_width == 1) && (len(string) < min_width_size) && (flag_neg == 0))
+					count += padding(min_width_size - len(string));
 				while (*string)
 					_putchar(*string++), count++;
+				if ((flag_width == 1) && (len(string) < min_width_size) && (flag_neg == 1))
+					count += padding(min_width_size - len(string));
 				break;
 			}
+			foo = _print_hex_count((unsigned long int)string, 0) + 2;
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				count += padding(min_width_size - foo);
 			_putchar('0'), count++;
 			_putchar('x'), count++;
-			count = _print_hex((unsigned long int)string, count, 0);
+			count += _print_hex((unsigned long int)string, 0);
+			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+				count += padding(min_width_size - foo);
 			break;
 		case ' ':
 			percent_space++;
@@ -202,7 +284,7 @@ int _printf(const char *format, ...)
 				_putchar(format[i]), count++;
 		}
 		}
-		flag_ell = flag_h = 0;
+		flag_ell = flag_h = flag_width = flag_neg = 0;
 		i++;
 	}
 	_putchar(-1);
@@ -215,13 +297,12 @@ int _printf(const char *format, ...)
 /**
  * _print_num - print a decimal number to stdout
  * @num: the number to print
- * @count: number of characters printed
  *
  * Return: void
  */
-int _print_num(long int num, int count)
+int _print_num(long int num)
 {
-	int j = 0, neg = 0, min = 0;
+	int j = 0, neg = 0, min = 0, count = 0;
 	long int temp;
 	char *tmp_str;
 
@@ -296,13 +377,12 @@ int _print_bin(unsigned int num, int count)
 /**
  * _print_unsigned_num - print a decimal number to stdout
  * @num: the number to print
- * @count: number of characters printed
  *
  * Return: void
  */
-int _print_unsigned_num(unsigned long int num, int count)
+int _print_unsigned_num(unsigned long int num)
 {
-	int j = 0;
+	int j = 0, count = 0;
 	unsigned long int temp;
 	char *tmp_str;
 
@@ -326,13 +406,12 @@ int _print_unsigned_num(unsigned long int num, int count)
 /**
  * _print_octal - converts an unsigned int to octal and prints to stdout
  * @num: the unsigned int
- * @count: counts number of characters printed
  *
  * Return: number of characters printed
  */
-int _print_octal(unsigned long int num, int count)
+int _print_octal(unsigned long int num)
 {
-	int i = 0;
+	int i = 0, count = 0;
 	unsigned long int temp;
 	char *tmp_oct;
 
@@ -362,14 +441,13 @@ int _print_octal(unsigned long int num, int count)
 /**
  * _print_hex - converts an unsigned int to hexadecimal and prints to stdout
  * @num: the unsigned int
- * @count: counts number of characters printed
  * @flag: 0 if lower and 1 if upper
  *
  * Return: number of characters printed
  */
-int _print_hex(unsigned long int num, int count, int flag)
+int _print_hex(unsigned long int num, int flag)
 {
-	int i = 0;
+	int i = 0, count = 0;
 	unsigned long int temp;
 	char *tmp_hex;
 	char *hex_num;
@@ -443,4 +521,189 @@ int is_format(char c)
 			return (1);
 	}
 	return (0);
+}
+/**
+ * padding - function to print padding of space or zeros
+ * @pad_width: the size of padding
+ *
+ * Return: number of chars printed
+ */
+int padding(int pad_width)
+{
+	int i;
+
+	for (i = 0; i < pad_width; i++)
+		_putchar(' ');
+	return (pad_width);
+}
+/**
+ * len - function to compute length of a string
+ * @str: the pointer to string
+ *
+ * Return: length of string
+ */
+int len(char *str)
+{
+	int i = 0;
+
+	while (*str++)
+		i++;
+	return (i);
+}
+/**
+ * _print_num_count - count no of chars printed to stdout
+ * @num: the number to print
+ *
+ * Return: void
+ */
+int _print_num_count(long int num)
+{
+	int j = 0, neg = 0, min = 0, count = 0;
+	long int temp;
+	char *tmp_str;
+
+	temp = num;
+	if (temp < 0)
+	{
+		if (temp == LONG_MIN)
+		{
+			temp = LONG_MIN + 1;
+			min = 1;
+		}
+		num = temp =  0 - temp, neg = 1;
+	}
+	while (temp > 9)
+		temp /= 10, ++j;
+	++j;
+	tmp_str = malloc((j + 1) * sizeof(char));
+	if (tmp_str == NULL)
+		exit(-1);
+	tmp_str[j] = '\0';
+	if (min == 1)
+	{
+	tmp_str[--j] = (num % 10) + 1 + '0';
+	num /= 10;
+	}
+	while (j)
+	{
+		tmp_str[--j] = (num % 10) + '0';
+		num /= 10;
+	}
+	if (neg == 1)
+		count++;
+	while (*tmp_str++)
+		count++;
+	return (count);
+}
+/**
+ * _print_unsigned_num_count - count no of chars printed to stdout
+ * @num: the number to print
+ *
+ * Return: void
+ */
+int _print_unsigned_num_count(unsigned long int num)
+{
+	int j = 0, count = 0;
+	unsigned long int temp;
+	char *tmp_str;
+
+	temp = num;
+	while (temp > 9)
+		temp /= 10, ++j;
+	++j;
+	tmp_str = malloc((j + 1) * sizeof(char));
+	if (tmp_str == NULL)
+		exit(-1);
+	tmp_str[j] = '\0';
+	while (j)
+	{
+		tmp_str[--j] = (num % 10) + '0';
+		num /= 10;
+	}
+	while (*tmp_str++)
+		count++;
+	return (count);
+}
+/**
+ * _print_octal_count - counts no of chars in octal printed to stdout
+ * @num: the unsigned int
+ *
+ * Return: number of characters printed
+ */
+int _print_octal_count(unsigned long int num)
+{
+	int i = 0, count = 0;
+	unsigned long int temp;
+	char *tmp_oct;
+
+	if (num == 0)
+	{
+		count++;
+	}
+	temp = num;
+	while (num)
+	{
+		num /= 8;
+		++i;
+	}
+	tmp_oct = malloc((i + 1) * sizeof(char));
+	if (tmp_oct == NULL)
+		exit(-1);
+	tmp_oct[i] = '\0';
+	while (i)
+	{
+		tmp_oct[--i] = (temp % 8) + '0';
+		temp /= 8;
+	}
+	while (*tmp_oct++)
+		count++;
+	return (count);
+}
+/**
+ * _print_hex_count - counts the no of chars in hexadecimal printed to stdout
+ * @num: the unsigned int
+ * @flag: 0 if lower and 1 if upper
+ *
+ * Return: number of characters printed
+ */
+int _print_hex_count(unsigned long int num, int flag)
+{
+	int i = 0, count = 0;
+	unsigned long int temp;
+	char *tmp_hex;
+	char *hex_num;
+
+	hex_num = "abcdefABCDEF";
+	if (num == 0)
+	{
+		count++;
+	}
+	temp = num;
+	while (num)
+	{
+		num /= 16;
+		++i;
+	}
+	tmp_hex = malloc((i + 1) * sizeof(char));
+	if (tmp_hex == NULL)
+		exit(-1);
+	tmp_hex[i] = '\0';
+	while (i)
+	{
+		if ((temp % 16) > 9)
+		{
+			if (flag == 0)
+				tmp_hex[--i] = hex_num[(temp % 16) - 10];
+			else
+				tmp_hex[--i] = hex_num[(temp % 16) - 10 + 6];
+		}
+		else
+		{
+			tmp_hex[--i] = (temp % 16) + '0';
+		}
+		temp /= 16;
+	}
+	while (*tmp_hex++)
+		count++;
+	return (count);
 }
