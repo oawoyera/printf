@@ -60,17 +60,17 @@ int _printf(const char *format, ...)
 		i = k;
 		if (l > k)
 		{
-		flag_width = 1;
-		width = malloc((l - k + 1) * sizeof(char));
-		if (width == NULL)
-			return (-1);
-		while (format[i] >= '1' && format[i] <= '9')
-		{
-			width[t++] = format[i];
-			i++;
-		}
-		width[t] = '\0';
-		min_width_size = str_to_num(width);
+			flag_width = 1;
+			width = malloc((l - k + 1) * sizeof(char));
+			if (width == NULL)
+				return (-1);
+			while (format[i] >= '1' && format[i] <= '9')
+			{
+				width[t++] = format[i];
+				i++;
+			}
+			width[t] = '\0';
+			min_width_size = str_to_num(width);
 		}
 		if (format[i] == 'l' || format[i] == 'h')
 		{
@@ -131,7 +131,8 @@ int _printf(const char *format, ...)
 				num = va_arg(ap, long int);
 			else
 				num = va_arg(ap, int);
-			foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
+			if (flag_width == 1)
+				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
@@ -147,7 +148,8 @@ int _printf(const char *format, ...)
 				num = va_arg(ap, long int);
 			else
 				num = va_arg(ap, int);
-			foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
+			if (flag_width == 1)
+				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
@@ -168,7 +170,8 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
-			foo = _print_unsigned_num_count(num2);
+			if (flag_width == 1)
+				foo = _print_unsigned_num_count(num2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			count += _print_unsigned_num(num2);
@@ -182,7 +185,8 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
-			foo = _print_octal_count(num2) + (flag_hash * (num2 != 0));
+			if (flag_width == 1)
+				foo = _print_octal_count(num2) + (flag_hash * (num2 != 0));
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
@@ -198,7 +202,8 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
-			foo = _print_hex_count(num2, 0) + ((flag_hash * (num2 != 0)) * 2);
+			if (flag_width == 1)
+				foo = _print_hex_count(num2, 0) + ((flag_hash * (num2 != 0)) * 2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
@@ -217,7 +222,8 @@ int _printf(const char *format, ...)
 				num2 = va_arg(ap, int);
 			else
 				num2 = va_arg(ap, unsigned int);
-			foo = _print_hex_count(num2, 1) + ((flag_hash * (num2 != 0)) * 2);
+			if (flag_width == 1)
+				foo = _print_hex_count(num2, 1) + ((flag_hash * (num2 != 0)) * 2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_hash == 1 && num2 != 0)
@@ -261,7 +267,8 @@ int _printf(const char *format, ...)
 					count += padding(min_width_size - len(string));
 				break;
 			}
-			foo = _print_hex_count((unsigned long int)string, 0) + 2;
+			if (flag_width == 1)
+				foo = _print_hex_count((unsigned long int)string, 0) + 2;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			_putchar('0'), count++;

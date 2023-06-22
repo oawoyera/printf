@@ -9,7 +9,7 @@ int _power(int, int);
  */
 unsigned long int str_to_num(char *s)
 {
-	int i = 0, j, n;
+	int i = 0, j, n = 0;
 	unsigned long int m, sum = 0;
 
 	while (*(s + i) != '\0')
