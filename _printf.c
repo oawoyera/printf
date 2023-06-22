@@ -20,7 +20,7 @@ int _print_hex_count(unsigned long int num, int flag);
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	int i = 0, j, k, l, no_lh = 0, t = 0, min_width_size, foo;
+	int i = 0, j, k, l, no_lh = 0, t = 0, min_width_size, foo, flag_star = 0;
 	int count = 0, flag_index = 0, flag_plus = 0, flag_space = 0, flag_hash = 0;
 	long int num;
 	unsigned long int num2;
@@ -54,23 +54,35 @@ int _printf(const char *format, ...)
 			i++;
 		}
 		k = i;
-		while (format[i] >= '1' && format[i] <= '9')
+		while ((format[i] >= '1' && format[i] <= '9') || (format[i] == '*'))
+		{
+			if (format[i] == '*')
+				flag_star = 1;
 			i++;
+		}
 		l = i;
 		i = k;
 		if (l > k)
 		{
 			flag_width = 1;
-			width = malloc((l - k + 1) * sizeof(char));
-			if (width == NULL)
-				return (-1);
-			while (format[i] >= '1' && format[i] <= '9')
+			if (flag_star == 1)
 			{
-				width[t++] = format[i];
+				min_width_size = va_arg(ap, int);
 				i++;
 			}
-			width[t] = '\0';
-			min_width_size = str_to_num(width);
+			else
+			{
+				width = malloc((l - k + 1) * sizeof(char));
+				if (width == NULL)
+					return (-1);
+				while (format[i] >= '1' && format[i] <= '9')
+				{
+					width[t++] = format[i];
+					i++;
+				}
+				width[t] = '\0';
+				min_width_size = str_to_num(width);
+			}
 		}
 		if (format[i] == 'l' || format[i] == 'h')
 		{
@@ -90,8 +102,9 @@ int _printf(const char *format, ...)
 		if (flag_width == 1 && !(is_format(format[i])))
 		{
 			i -= l - k;
-			free(width);
-			flag_width = 0;
+			if (flag_star != 1)
+				free(width);
+			flag_width = flag_star = 0;
 		}
 		if ((flag_index != 0) && !(is_format(format[i])))
 		{
