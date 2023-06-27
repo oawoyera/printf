@@ -56,6 +56,8 @@ int _printf(const char *format, ...)
 				flag_hash = 1;
 			if (format[i] == '0')
 				flag_zero = 1;
+			if (format[i] == '-')
+				flag_neg = 1;
 			i++;
 		}
 		k = i;
@@ -693,7 +695,7 @@ int is_flag(char c)
 {
 	char *flags;
 
-	flags = "+ #0";
+	flags = "+ #0-";
 	while (*flags)
 	{
 		if (c == *flags++)
