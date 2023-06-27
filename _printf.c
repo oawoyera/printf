@@ -178,6 +178,8 @@ int _printf(const char *format, ...)
 				foo = len(string);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
+			if (flag_precision == 1 && min_precision == 0)
+				break;
 			while (*string)
 			{
 				_putchar(*string++), count++;
