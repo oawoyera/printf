@@ -26,9 +26,9 @@ int _printf(const char *format, ...)
 	long int num;
 	unsigned long int num2;
 	int percent_space = 0, flag_ell = 0, flag_h = 0, flag_width = 0, flag_neg = 0;
-	int m, n, m0, m1, flag_precision = 0, min_precision = 0, flag_star_p = 0;
-	int zpad = 0, x = 0, y = 0, z = 0, p = 0, pre = 0, flag_zero = 0;
-	char *string, *width, *precision; /*flags;*/
+	int m, n, m0, m1, flag_precision = 0, min_precision = 0, flag_star_p = 0, q;
+	int zpad = 0, x = 0, y = 0, z = 0, p = 0, pre = 0, flag_zero = 0, str_len = 0;
+	char *string, *temp_string, *width, *precision; /*flags;*/
 
 	/*flags = "+ #lh0123456789.-";*/
 	if (format == NULL)
@@ -462,6 +462,16 @@ int _printf(const char *format, ...)
 			count += _print_hex((unsigned long int)string, 0);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
+			break;
+		case 'r':
+			string = va_arg(ap, char*);
+			if (string == NULL)
+				string = "(llun)";
+			temp_string = string;
+			while (*temp_string++)
+				++str_len;
+			for (q = str_len - 1; q >= 0; q--)
+				_putchar(string[q]), count++;
 			break;
 		case ' ':
 			percent_space++;
