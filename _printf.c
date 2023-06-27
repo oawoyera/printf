@@ -1,5 +1,5 @@
 #include "main.h"
-int _print_num(long int);
+int _print_num(long int, int);
 int _print_bin(unsigned int num, int count);
 int _print_unsigned_num(unsigned long int num);
 int _print_octal(unsigned long int num);
@@ -27,7 +27,7 @@ int _printf(const char *format, ...)
 	unsigned long int num2;
 	int percent_space = 0, flag_ell = 0, flag_h = 0, flag_width = 0, flag_neg = 0;
 	int m, n, m0, m1, flag_precision = 0, min_precision = 0, flag_star_p = 0;
-	int zpad = 0, z = 0, p = 0, pre = 0;
+	int zpad = 0, y = 0, z = 0, p = 0, pre = 0;
 	char *string, *width, *precision; /*flags;*/
 
 	/*flags = "+ #lh0123456789.-";*/
@@ -206,21 +206,22 @@ int _printf(const char *format, ...)
 				num = va_arg(ap, int);
 			if (flag_precision == 1)
 			{
-				bar = _print_num_count(num);
+				bar = _print_num_count(num) - (num < 0);
 				if (bar < min_precision)
+				{
 					z = min_precision - bar;
+					y = z - (num < 0);
+				}
 			}
 			if (flag_width == 1)
-				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0)) + z;
+				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0)) + y;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
-			if ((flag_precision == 1) && (bar < min_precision))
-				count += zero_padding(z);
-			count += _print_num(num);
+			count += _print_num(num, z);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
 			break;
@@ -231,21 +232,22 @@ int _printf(const char *format, ...)
 				num = va_arg(ap, int);
 			if (flag_precision == 1)
 			{
-				bar = _print_num_count(num);
+				bar = _print_num_count(num) - (num < 0);
 				if (bar < min_precision)
-					zpad = min_precision - bar;
+				{
+					z = min_precision - bar;
+					y = z - (num < 0);
+				}
 			}
 			if (flag_width == 1)
-				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0));
+				foo = _print_num_count(num) + ((flag_plus || flag_space) * (num >= 0)) + y;
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 				count += padding(min_width_size - foo);
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
-			if ((flag_precision == 1) && (bar < min_precision))
-				count += zero_padding(zpad);
-			count += _print_num(num);
+			count += _print_num(num, z);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
 			break;
@@ -413,7 +415,7 @@ int _printf(const char *format, ...)
 		}
 		}
 		flag_ell = flag_h = flag_width = flag_neg = 0, flag_precision = 0;
-		min_precision = 0, zpad = 0, z = 0;
+		min_precision = 0, zpad = 0, y = 0, z = 0;
 		i++;
 	}
 	_putchar(-1);
@@ -426,10 +428,11 @@ int _printf(const char *format, ...)
 /**
  * _print_num - print a decimal number to stdout
  * @num: the number to print
+ * @zero_padding: the number of zeros to pad when precision is set
  *
  * Return: void
  */
-int _print_num(long int num)
+int _print_num(long int num, int zero_padding)
 {
 	int j = 0, neg = 0, min = 0, count = 0;
 	long int temp;
@@ -464,6 +467,10 @@ int _print_num(long int num)
 	}
 	if (neg == 1)
 		_putchar('-'), count++;
+	while (zero_padding--)
+	{
+		_putchar('0'), count++;
+	}
 	while (*tmp_str)
 		_putchar(*tmp_str++), count++;
 	return (count);
