@@ -221,6 +221,8 @@ int _printf(const char *format, ...)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
+			if (num == 0 && flag_precision == 1 && min_precision == 0)
+				break;
 			count += _print_num(num, z);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -247,6 +249,8 @@ int _printf(const char *format, ...)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
+			if (num == 0 && flag_precision == 1 && min_precision == 0)
+				break;
 			count += _print_num(num, z);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -273,6 +277,8 @@ int _printf(const char *format, ...)
 				count += padding(min_width_size - foo);
 			if ((flag_precision == 1) && (bar < min_precision))
 				count += zero_padding(zpad);
+			if (num2 == 0 && flag_precision == 1 && min_precision == 0)
+				break;
 			count += _print_unsigned_num(num2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -298,6 +304,8 @@ int _printf(const char *format, ...)
 				_putchar('0'), count++;
 			if ((flag_precision == 1) && (bar < min_precision))
 				count += zero_padding(zpad);
+			if (num2 == 0 && flag_precision == 1 && min_precision == 0)
+				break;
 			count += _print_octal(num2);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -326,6 +334,8 @@ int _printf(const char *format, ...)
 			}
 			if ((flag_precision == 1) && (bar < min_precision))
 				count += zero_padding(zpad);
+			if (num2 == 0 && flag_precision == 1 && min_precision == 0)
+				break;
 			count += _print_hex(num2, 0);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
@@ -354,6 +364,8 @@ int _printf(const char *format, ...)
 			}
 			if ((flag_precision == 1) && (bar < min_precision))
 				count += zero_padding(zpad);
+			if (num2 == 0 && flag_precision == 1 && min_precision == 0)
+				break;
 			count += _print_hex(num2, 1);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
 				count += padding(min_width_size - foo);
