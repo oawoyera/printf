@@ -473,6 +473,25 @@ int _printf(const char *format, ...)
 			for (q = str_len - 1; q >= 0; q--)
 				_putchar(string[q]), count++;
 			break;
+		case 'R':
+			string = va_arg(ap, char*);
+			if (string == NULL)
+			{
+				string = "(null)";
+				while (*string)
+					_putchar(*string++), count++;
+				break;
+			}
+			while (*string)
+			{
+				if ((*string >= 'a' && *string <= 'm') || (*string >= 'A' && *string <= 'M'))
+					_putchar((*string++) + 13), count++;
+				else if ((*string >= 'n' && *string <= 'z') || (*string >= 'N' && *string <= 'Z'))
+					_putchar((*string++) - 13), count++;
+				else
+					_putchar(*string++), count++;
+			}
+			break;
 		case ' ':
 			percent_space++;
 			if ((percent_space % 2) == 0)
