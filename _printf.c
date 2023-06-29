@@ -234,16 +234,21 @@ int _printf(const char *format, ...)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
-			if (num == 0 && flag_precision == 1 && min_precision == 0)
-				break;
-			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+			if (!(num == 0 && flag_precision == 1 && min_precision == 0))
 			{
-				if (flag_zero == 1 && flag_precision == 0)
-					x = min_width_size - foo;
+				if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				{
+					if (flag_zero == 1 && flag_precision == 0)
+						x = min_width_size - foo;
+				}
+				count += _print_num(num, z + x);
 			}
-			count += _print_num(num, z + x);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+			{
 				count += padding(min_width_size - foo);
+				if (num == 0 && flag_precision == 1 && min_precision == 0)
+					count += padding(1);
+			}
 			break;
 		case 'i':
 			if (flag_ell == 1)
@@ -274,16 +279,21 @@ int _printf(const char *format, ...)
 				_putchar('+'), count++;
 			if (flag_space == 1 && num >= 0 && flag_plus == 0)
 				_putchar(' '), count++;
-			if (num == 0 && flag_precision == 1 && min_precision == 0)
-				break;
-			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+			if (!(num == 0 && flag_precision == 1 && min_precision == 0))
 			{
-				if (flag_zero == 1 && flag_precision == 0)
-					x = min_width_size - foo;
+				if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
+				{
+					if (flag_zero == 1 && flag_precision == 0)
+						x = min_width_size - foo;
+				}
+				count += _print_num(num, z + x);
 			}
-			count += _print_num(num, z + x);
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 1))
+			{
 				count += padding(min_width_size - foo);
+				if (num == 0 && flag_precision == 1 && min_precision == 0)
+					count += padding(1);
+			}
 			break;
 		case 'b':
 			count = _print_bin(va_arg(ap, unsigned int), count);
