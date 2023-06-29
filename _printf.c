@@ -508,7 +508,7 @@ int _printf(const char *format, ...)
 		}
 		flag_ell = flag_h = flag_width = flag_neg = 0, flag_precision = 0;
 		min_precision = 0, zpad = 0, x = 0, y = 0, z = 0, flag_zero = 0;
-		min_width_size = 0, t = 0, p = 0;
+		min_width_size = 0, t = 0, p = 0, str_len = 0;
 		if (flag_width == 1 && flag_star == 0)
 			free(width);
 		if (flag_precision == 1 && flag_star_p == 0)
