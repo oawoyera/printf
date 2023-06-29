@@ -224,7 +224,11 @@ int _printf(const char *format, ...)
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 			{
 				if (!(flag_zero == 1 && flag_precision == 0))
+				{
 					count += padding(min_width_size - foo);
+					if (num == 0 && flag_precision == 1 && min_precision == 0)
+						count += padding(1);
+				}
 			}
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
@@ -260,7 +264,11 @@ int _printf(const char *format, ...)
 			if ((flag_width == 1) && (foo < min_width_size) && (flag_neg == 0))
 			{
 				if (!(flag_zero == 1 && flag_precision == 0))
+				{
 					count += padding(min_width_size - foo);
+					if (num == 0 && flag_precision == 1 && min_precision == 0)
+						count += padding(1);
+				}
 			}
 			if (flag_plus == 1 && num >= 0)
 				_putchar('+'), count++;
